@@ -3,6 +3,7 @@
 #include<pthread.h>
 
 double err_max; // valor maximo do erro da integral
+double integral = 0.0; // valor da integral
 
 // Estrutura para guardar o início e fim de um intervalo de função
 typedef struct INTERVALO {
@@ -78,37 +79,72 @@ Intervalo peek(Pilha *pilha) {
 }
 
 void calculaIntegral(Pilha *intervalos) {
-    Intervalo interv; // Guarda o intervalo que está se fazendo o cálculo da integral
-    double p_medio; // Ponto médio do intervalo analisado
+    Intervalo interv; // Guarda o intervalo que está se fazendo o cálculo da integral, que é quem estiver no topo da pilha
+    Intervalo novos[2]; // Guarda os novos intervalos que serão introduzidos na pilha
+    double p_medio_a, p_medio_b, p_medio_c; // Ponto médio de seus respectivos retângulos
     double ret_a, ret_b, ret_c; // Área do retângulo maior e dos retângulos menores, respectivamente
+    double diff; // Diferença da área entre o retângulo maior e os retângulos menores
 
     interv = peek(intervalos);
     pop(intervalos);
 
-    p_medio = (interv.b - interv.a) / 2;
+    printf("peek { %lf %lf }\n", interv.a, interv.b);
 
-    ret_a = mathFunction(p_medio) * (interv.b - interv.a);
-    ret_b = mathFunction
+    p_medio_a = (interv.b + interv.a) / 2;
+    p_medio_b = (p_medio_a + interv.a) / 2;
+    p_medio_c = (interv.b + p_medio_a) / 2;
+
+    printf("ptmedio %lf %lf\n", p_medio_a, interv.b - interv.a);
+
+    ret_a = mathFunction(p_medio_a) * (interv.b - interv.a);
+    ret_b = mathFunction(p_medio_b) * (p_medio_a - interv.a);
+    ret_c = mathFunction(p_medio_c) * (interv.b - p_medio_a);
+
+    printf("rets %lf %lf %lf\n", ret_a, ret_b, ret_c);
+
+    diff = ret_a - (ret_b + ret_c);
+    if(diff < 0) diff = diff * -1.0;
+
+    printf("%lf < %lf\n\n", diff, err_max);
+
+    if(diff < err_max) {
+        integral += ret_b + ret_c;
+    } else {
+        novos[0].a = interv.a;
+        novos[0].b = p_medio_a;
+        novos[1].a = p_medio_a;
+        novos[1].b = interv.b;
+
+        push(intervalos, novos[0]);
+        push(intervalos, novos[1]);
+    }
 }
 
 int main(int argc, char *argv[]) {
     Intervalo inicial; // Guarda o intervalo inicial dado pelo usuário
     Pilha *intervalos = init(100); // Inicializando uma pilha de intervalos com 100 espaços
 
-    if (argc < 4) {
+    if(argc < 4) {
         printf("Por favor, informe: %s <inicio do intervalo> <fim do intervalo> <erro maximo>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     inicial.a = atof(argv[1]);
     inicial.b = atof(argv[2]);
-    err_max = atof(argv[2]);
+    err_max = atof(argv[3]);
+
+    if(inicial.b <= inicial.a) {
+        printf("O fim do intervalo eh menor que o inicio. Por favor, informe um fim que seja maior que o inicio.\n");
+        exit(EXIT_FAILURE);    
+    }
 
     push(intervalos, inicial);
 
     while(!isEmpty(intervalos)) {
         calculaIntegral(intervalos);
     }
+
+    printf("O valor da integral é aproximadamente: %.5lf\n", integral);
 
     return 0;
 }
