@@ -78,6 +78,11 @@ Intervalo peek(Pilha *pilha) {
     return pilha->array[pilha->top];
 }
 
+// Calcula a área de um intervalo debaixo de uma dada função pelo método retangular
+// utilizando a estratégia de quadratura adaptativa. Se a diferença obtida entre o retângulo
+// maior e os retângulos menores for menor que o erro estipulado então a área dos retângulos 
+// menores são adicionados no somatório da integral, caso contrário os intervalos de tais são 
+// adicionados na pilha
 void calculaIntegral(Pilha *intervalos) {
     Intervalo interv; // Guarda o intervalo que está se fazendo o cálculo da integral, que é quem estiver no topo da pilha
     Intervalo novos[2]; // Guarda os novos intervalos que serão introduzidos na pilha
@@ -112,6 +117,12 @@ void calculaIntegral(Pilha *intervalos) {
     }
 }
 
+// Para o cálculo de uma integral a partir de um intervalo e erro dado e por meio do método
+// indicado no trabalho (integração numérica retangular com quadratura adaptativa) utilizamos
+// uma estrutura de dados, no caso uma pilha, para guardar os intervalos, sendo que primeiramente
+// ela guarda somente o intervalo inicial e conforme o programa vai fazendo os cálculos ele
+// vai tirando e colocando novos intervalos nesta pilha enquanto ele não atingir um valor menor 
+// que o erro dado e para somente quando a pilha não tiver mais nenhum intervalo para calcular.
 int main(int argc, char *argv[]) {
     Intervalo inicial; // Guarda o intervalo inicial dado pelo usuário
     Pilha *intervalos = init(100); // Inicializando uma pilha de intervalos com 100 espaços
