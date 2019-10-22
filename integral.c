@@ -12,7 +12,7 @@ typedef struct INTERVALO {
 } Intervalo;
 
 // Função matemática da qual quer se obter a integral
-double mathFunction(int x) {
+double mathFunction(double x) {
     return x + 1;
 }
 
@@ -88,24 +88,16 @@ void calculaIntegral(Pilha *intervalos) {
     interv = peek(intervalos);
     pop(intervalos);
 
-    printf("peek { %lf %lf }\n", interv.a, interv.b);
-
     p_medio_a = (interv.b + interv.a) / 2;
     p_medio_b = (p_medio_a + interv.a) / 2;
     p_medio_c = (interv.b + p_medio_a) / 2;
-
-    printf("ptmedio %lf %lf\n", p_medio_a, interv.b - interv.a);
 
     ret_a = mathFunction(p_medio_a) * (interv.b - interv.a);
     ret_b = mathFunction(p_medio_b) * (p_medio_a - interv.a);
     ret_c = mathFunction(p_medio_c) * (interv.b - p_medio_a);
 
-    printf("rets %lf %lf %lf\n", ret_a, ret_b, ret_c);
-
     diff = ret_a - (ret_b + ret_c);
     if(diff < 0) diff = diff * -1.0;
-
-    printf("%lf < %lf\n\n", diff, err_max);
 
     if(diff < err_max) {
         integral += ret_b + ret_c;
