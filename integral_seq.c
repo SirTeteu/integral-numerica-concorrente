@@ -1,6 +1,5 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include<pthread.h>
 #include<math.h>
 
 double err_max; // valor maximo do erro da integral
