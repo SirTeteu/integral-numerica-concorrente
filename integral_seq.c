@@ -149,5 +149,8 @@ int main(int argc, char *argv[]) {
 
     printf("O valor da integral é aproximadamente: %.5lf\n", integral);
 
+    free(intervalos->array);
+    free(intervalos);
+
     return 0;
 }
