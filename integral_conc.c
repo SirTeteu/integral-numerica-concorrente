@@ -14,7 +14,7 @@ int integral_finalizada = 0; // boolean para indicar se a integral foi finalizad
                             // de todas as threads terem sido bloqueadas menos a ultima e esta
                             // saiu do loop de calcular a integral
 
-// Estrutura para guardar o início e fim de um intervalo de função
+// Estrutura para guardar o início e fim de um intervalo de uma função
 typedef struct INTERVALO {
     double a;   // inicio do intervalo
     double b;   // fim do intervalo
@@ -45,7 +45,7 @@ Pilha *init(int length) {
     return pilha;
 }
 
-// A pilha está cheia quando o topo é a última posição do tamanho
+// A pilha está cheia quando o topo tiver o valor de tamanho - 1
 int isFull(Pilha *pilha) {
     return pilha->top == pilha->length - 1;
 }
@@ -55,7 +55,7 @@ int isEmpty(Pilha *pilha) {
     return pilha->top == -1;
 }
 
-// Adiciona um novo intervalo na pilha. Se estiver cheia, expande o seu tamanho
+// Adiciona um novo intervalo na pilha. Se estiver cheia, termina o programa
 void push(Pilha *pilha, Intervalo elem) {
     if (isFull(pilha)) {
         printf("A pilha esta cheia! O tamanho da pilha nao eh suficiente para resolver essa integral.\n");
