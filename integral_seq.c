@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
+#include<time.h>
 
 double err_max; // valor maximo do erro da integral
 double integral = 0.0; // valor da integral
@@ -126,6 +127,7 @@ void calculaIntegral(Pilha *intervalos) {
 int main(int argc, char *argv[]) {
     Intervalo inicial; // Guarda o intervalo inicial dado pelo usuário
     Pilha *intervalos = init(100); // Inicializando uma pilha de intervalos com 100 espaços
+    time_t inicio, fim;
 
     if(argc < 4) {
         printf("Por favor, informe: %s <inicio do intervalo> <fim do intervalo> <erro maximo>\n", argv[0]);
@@ -141,13 +143,18 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);    
     }
 
+    inicio = time(NULL);
+
     push(intervalos, inicial);
 
     while(!isEmpty(intervalos)) {
         calculaIntegral(intervalos);
     }
 
+    fim = time(NULL);
+
     printf("O valor da integral é aproximadamente: %.5lf\n", integral);
+    printf("O programa demorou %.2lfs para processar a integral.", difftime(fim, inicio));
 
     free(intervalos->array);
     free(intervalos);
