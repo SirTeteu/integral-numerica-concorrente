@@ -57,9 +57,10 @@ int isEmpty(Pilha *pilha) {
 
 // Adiciona um novo intervalo na pilha. Se estiver cheia, termina o programa
 void push(Pilha *pilha, Intervalo elem) {
-    if (isFull(pilha)) {
-        printf("A pilha esta cheia! O tamanho da pilha nao eh suficiente para resolver essa integral.\n");
-        exit(EXIT_FAILURE);
+    while (isFull(pilha)) {
+        // pode ser que a pilha tenha ficado cheia durante os calculos de integral na thread,
+        // então ela deve ser bloqueada até alguma outra thread retirar um intervalo da pilha
+        pthread_cond_wait(&cond_f, &mutex);
     }
     
     pilha->top++;
@@ -89,8 +90,8 @@ Intervalo peek(Pilha *pilha) {
 
 // Calcula a área de um intervalo debaixo de uma dada função pelo método retangular
 // utilizando a estratégia de quadratura adaptativa. Se a diferença obtida entre o retângulo
-// maior e os retângulos menores for menor que o erro estipulado então a área dos retângulos 
-// menores são adicionados no somatório da integral, caso contrário os intervalos de tais são 
+// maior e os retângulos menores for menor que o erro estipulado então a área do retângulo 
+// maior é adicionada no somatório da integral, caso contrário os subintervalos obtidos são 
 // adicionados na pilha
 void calculaIntegral(Pilha *intervalos) {
     Intervalo interv; // Guarda o intervalo que está se fazendo o cálculo da integral, que é quem estiver no topo da pilha
@@ -125,7 +126,7 @@ void calculaIntegral(Pilha *intervalos) {
 
     if(diff < err_max) {
         pthread_mutex_lock(&mutex);
-        integral += ret_b + ret_c;
+        integral += ret_a;
         pthread_mutex_unlock(&mutex);
     } else {
         novos[0].a = interv.a;
@@ -134,12 +135,6 @@ void calculaIntegral(Pilha *intervalos) {
         novos[1].b = interv.b;
 
         pthread_mutex_lock(&mutex);
-
-        // pode ser que a pilha tenha ficado cheia durante os calculos da thread, então
-        // ela deve ser bloqueada até alguma outra thread retirar um intervalo da pilha
-        while(isFull(intervalos)) {
-            pthread_cond_wait(&cond_f, &mutex);
-        }
         push(intervalos, novos[0]);
         push(intervalos, novos[1]);
         pthread_cond_broadcast(&cond_e);
