@@ -5,6 +5,8 @@
 
 double err_max; // valor maximo do erro da integral
 double integral = 0.0; // valor da integral
+int n_retangulos = 1; // numero de retangulos utilizado pra fazer a integral. o menor caso possível é
+                      // fazer somente um retângulo
 
 // Estrutura para guardar o início e fim de um intervalo de função
 typedef struct INTERVALO {
@@ -14,7 +16,7 @@ typedef struct INTERVALO {
 
 // Função matemática da qual quer se obter a integral
 double mathFunction(double x) {
-    return pow(x, 2.0);
+    return sqrt(1.0 + pow(x, 4.0));
 }
 
 // Estrutura de dados da pilha
@@ -115,6 +117,8 @@ void calculaIntegral(Pilha *intervalos) {
 
         push(intervalos, novos[0]);
         push(intervalos, novos[1]);
+
+        n_retangulos++;
     }
 }
 
@@ -127,7 +131,7 @@ void calculaIntegral(Pilha *intervalos) {
 int main(int argc, char *argv[]) {
     Intervalo inicial; // Guarda o intervalo inicial dado pelo usuário
     Pilha *intervalos = init(100); // Inicializando uma pilha de intervalos com 100 espaços
-    time_t inicio, fim;
+    time_t inicio, fim; // tempo de inicio e fim do cálculo da integral
 
     if(argc < 4) {
         printf("Por favor, informe: %s <inicio do intervalo> <fim do intervalo> <erro maximo>\n", argv[0]);
@@ -153,8 +157,9 @@ int main(int argc, char *argv[]) {
 
     fim = time(NULL);
 
-    printf("O valor da integral é aproximadamente: %.5lf\n", integral);
-    printf("O programa demorou %.2lfs para processar a integral.", difftime(fim, inicio));
+    printf("O valor da integral é aproximadamente: %.5lf.\n", integral);
+    printf("A integral foi feita utilizando %d retângulos.\n", n_retangulos);
+    printf("O programa demorou %.5lfs para processar a integral.", difftime(fim, inicio));
 
     free(intervalos->array);
     free(intervalos);
