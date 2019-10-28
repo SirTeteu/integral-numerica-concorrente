@@ -2,9 +2,12 @@
 #include<stdlib.h>
 #include<pthread.h>
 #include<math.h>
+#include<time.h>
 
 double err_max; // valor maximo do erro da integral
 double integral = 0.0; // valor da integral
+int n_retangulos = 1; // numero de retangulos utilizado pra fazer a integral. o menor caso possível é
+                      // fazer somente um retângulo
 
 pthread_mutex_t mutex;
 pthread_cond_t cond_e, cond_f; // condição para as threads quando a pilha está vazia e cheia, respectivamente
@@ -22,7 +25,7 @@ typedef struct INTERVALO {
 
 // Função matemática da qual quer se obter a integral
 double mathFunction(double x) {
-    return pow(x, 2.0);
+    return sqrt(1.0 + pow(x, 4.0));
 }
 
 // Estrutura de dados da pilha
@@ -135,8 +138,12 @@ void calculaIntegral(Pilha *intervalos) {
         novos[1].b = interv.b;
 
         pthread_mutex_lock(&mutex);
+
         push(intervalos, novos[0]);
         push(intervalos, novos[1]);
+
+        n_retangulos++;
+
         pthread_cond_broadcast(&cond_e);
         pthread_mutex_unlock(&mutex);
     }
@@ -178,6 +185,7 @@ int main(int argc, char *argv[]) {
     Intervalo inicial; // Guarda o intervalo inicial dado pelo usuário
     Pilha *intervalos = init(100); // Inicializando uma pilha de intervalos com 100 espaços
     pthread_t *tid_sistema; // threads que irão realizar o cálculo da integral
+    time_t inicio, fim; // tempo de inicio e fim do cálculo da integral
     int i;
 
     if(argc < 5) {
@@ -204,6 +212,8 @@ int main(int argc, char *argv[]) {
     pthread_cond_init(&cond_e, NULL);
     pthread_cond_init(&cond_f, NULL);
 
+    inicio = time(NULL);
+
     for(i = 0; i < nthreads; i++) {
         if(pthread_create(&tid_sistema[i], NULL, integra, (void *) intervalos)) {
             printf("Erro de criação de threads\n");
@@ -218,11 +228,15 @@ int main(int argc, char *argv[]) {
         }
     }
 
+     fim = time(NULL);
+
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&cond_e);
     pthread_cond_destroy(&cond_f);
 
     printf("O valor da integral é aproximadamente: %.5lf\n", integral);
+    printf("A integral foi feita utilizando %d retângulos.\n", n_retangulos);
+    printf("O programa demorou %.5lfs para processar a integral.", difftime(fim, inicio));
 
     free(tid_sistema);
     free(intervalos->array);
