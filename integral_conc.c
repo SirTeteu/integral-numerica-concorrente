@@ -25,7 +25,7 @@ typedef struct INTERVALO {
 
 // Função matemática da qual quer se obter a integral
 double mathFunction(double x) {
-    return sqrt(1.0 + pow(x, 4.0));
+    return x + 1;
 }
 
 // Estrutura de dados da pilha
@@ -183,7 +183,7 @@ void *integra(void *intervalos) {
 // que o erro dado e para somente quando a pilha não tiver mais nenhum intervalo para calcular
 int main(int argc, char *argv[]) {
     Intervalo inicial; // Guarda o intervalo inicial dado pelo usuário
-    Pilha *intervalos = init(100); // Inicializando uma pilha de intervalos com 100 espaços
+    Pilha *intervalos = init(1000); // Inicializando uma pilha de intervalos com 100 espaços
     pthread_t *tid_sistema; // threads que irão realizar o cálculo da integral
     time_t inicio, fim; // tempo de inicio e fim do cálculo da integral
     int i;
